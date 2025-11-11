@@ -1,6 +1,7 @@
 """
 Fractal mathematics engine for FractalChain.
 Implements Julia set generation and box-counting dimension calculation.
+Enhanced with caching and performance optimizations.
 """
 
 import numpy as np
@@ -8,6 +9,9 @@ from typing import Tuple, List, Optional
 from dataclasses import dataclass
 import hashlib
 from scipy import stats
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -267,18 +271,31 @@ class BoxCountingDimension:
 class FractalProofOfWork:
     """
     Complete FractalPoW implementation combining Julia set and box-counting.
+    Enhanced with caching for improved performance.
     """
 
-    def __init__(self, config: FractalConfig = None):
+    def __init__(self, config: FractalConfig = None, enable_cache: bool = True):
         """
         Initialize FractalPoW system.
 
         Args:
             config: Fractal configuration parameters
+            enable_cache: Enable result caching
         """
         self.config = config or FractalConfig()
         self.julia_gen = JuliaSetGenerator(self.config)
         self.box_counter = BoxCountingDimension(self.config)
+        self.enable_cache = enable_cache
+        self._cache = None
+
+        if enable_cache:
+            try:
+                from utils.cache import get_fractal_cache
+                self._cache = get_fractal_cache()
+                logger.info("Fractal cache enabled")
+            except ImportError:
+                logger.warning("Cache module not available, caching disabled")
+                self.enable_cache = False
 
     def generate_fractal_seed(
         self,
