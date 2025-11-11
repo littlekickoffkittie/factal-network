@@ -1,0 +1,31 @@
+[Unit]
+Description=FractalChain Node
+After=network.target
+
+[Service]
+Type=simple
+User=fractalchain
+Group=fractalchain
+WorkingDirectory=/opt/fractalchain
+ExecStart=/opt/fractalchain/venv/bin/python3 /opt/fractalchain/main.py
+Restart=on-failure
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/fractalchain /home/fractalchain/.fractalchain
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=8G
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fractalchain
+
+[Install]
+WantedBy=multi-user.target
